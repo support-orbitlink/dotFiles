@@ -1,0 +1,60 @@
+export PATH="/opt/homebrew/bin:$PATH"
+
+# STARSHIP
+eval "$(starship init zsh)"
+
+# Activate syntax Highlighting
+source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Disable Underline
+(( ${+ZSH_HIGHLIGHT_STYLES} )) || typeset -A ZSH_HIGHLIGHT_STYLES
+ZSH_HIGHLIGHT_STYLES[path]=none
+ZSH_HIGHLIGHT_STYLES[path_prefix]=none
+
+# Activate autosuggestions
+source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# Neovim Aliases
+alias v="nvim"
+alias nv="nvim"
+alias vim="nvim"
+
+# >>> socket-firewall >>>
+# Transparent Socket Firewall wrapping for package managers.
+# Installed by Iru. Do not edit this block manually.
+# Config (API key, custom registries) lives in ~/.sfw.config
+# Only wraps install-related subcommands (install, add, update, ci, etc.)
+# Bypass: SFW_BYPASS=1 npm install ...
+if command -v sfw >/dev/null 2>&1; then
+  # Remove any existing aliases that conflict with function definitions
+  unalias npm npx yarn pnpm pip pip3 uv cargo mvn gradle gem bundle dotnet 2>/dev/null || true
+
+  # Resolve pip binary before defining function (avoids bash command -v finding the function itself)
+  _sfw_pip_cmd=$(command -v pip >/dev/null 2>&1 && echo pip || echo pip3)
+
+  # JavaScript/TypeScript
+  npm()    { if [ -n "${SFW_BYPASS:-}" ]; then command npm "$@"; else case "${1:-}" in install|i|ci|add|update|upgrade) command sfw npm "$@" ;; *) command npm "$@" ;; esac; fi; }
+  npx()    { if [ -n "${SFW_BYPASS:-}" ]; then command npx "$@"; else command sfw npx "$@"; fi; }
+  yarn()   { if [ -n "${SFW_BYPASS:-}" ]; then command yarn "$@"; else case "${1:-}" in install|add|up|upgrade|dlx) command sfw yarn "$@" ;; *) command yarn "$@" ;; esac; fi; }
+  pnpm()   { if [ -n "${SFW_BYPASS:-}" ]; then command pnpm "$@"; else case "${1:-}" in install|i|add|update|upgrade|fetch|dlx) command sfw pnpm "$@" ;; *) command pnpm "$@" ;; esac; fi; }
+
+  # Python
+  pip()    { if [ -n "${SFW_BYPASS:-}" ]; then command $_sfw_pip_cmd "$@"; else case "${1:-}" in install|download|wheel) command sfw $_sfw_pip_cmd "$@" ;; *) command $_sfw_pip_cmd "$@" ;; esac; fi; }
+  pip3()   { if [ -n "${SFW_BYPASS:-}" ]; then command pip3 "$@"; else case "${1:-}" in install|download|wheel) command sfw pip3 "$@" ;; *) command pip3 "$@" ;; esac; fi; }
+  uv()     { if [ -n "${SFW_BYPASS:-}" ]; then command uv "$@"; else case "${1:-}" in pip|add|sync|lock|install) command sfw uv "$@" ;; *) command uv "$@" ;; esac; fi; }
+
+  # Rust
+  cargo()  { if [ -n "${SFW_BYPASS:-}" ]; then command cargo "$@"; else case "${1:-}" in install|add|update|fetch) command sfw cargo "$@" ;; *) command cargo "$@" ;; esac; fi; }
+
+  # Java/Scala/Kotlin
+  mvn()    { if [ -n "${SFW_BYPASS:-}" ]; then command mvn "$@"; else command sfw mvn "$@"; fi; }
+  gradle() { if [ -n "${SFW_BYPASS:-}" ]; then command gradle "$@"; else command sfw gradle "$@"; fi; }
+
+  # Ruby
+  gem()    { if [ -n "${SFW_BYPASS:-}" ]; then command gem "$@"; else case "${1:-}" in install|update) command sfw gem "$@" ;; *) command gem "$@" ;; esac; fi; }
+  bundle() { if [ -n "${SFW_BYPASS:-}" ]; then command bundle "$@"; else case "${1:-}" in install|update|add) command sfw bundle "$@" ;; *) command bundle "$@" ;; esac; fi; }
+
+  # .NET
+  dotnet() { if [ -n "${SFW_BYPASS:-}" ]; then command dotnet "$@"; else case "${1:-}" in add|restore) command sfw dotnet "$@" ;; *) command dotnet "$@" ;; esac; fi; }
+fi
+# <<< socket-firewall <<<
