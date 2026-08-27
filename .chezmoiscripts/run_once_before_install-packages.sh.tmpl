@@ -1,21 +1,55 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
-if [[ "$(uname)" != "Darwin" ]]; then
-    echo "This installation script currently supports macOS only."
-    exit 0
+os="$(uname -s)"
+if [[ "$os" != "Darwin" && "$os" != "Linux" ]]; then
+    echo "Unsupported operating system: $os (macOS and Linux are supported)." >&2
+    exit 1
+fi
+
+if [[ "$os" == "Linux" && ! -x /home/linuxbrew/.linuxbrew/bin/brew ]] && ! command -v brew >/dev/null 2>&1; then
+    if [[ -r /etc/os-release ]]; then
+        # shellcheck disable=SC1091
+        source /etc/os-release
+    fi
+
+    case "${ID:-}" in
+        debian|ubuntu)
+            echo "Installing Linuxbrew prerequisites..."
+            if [[ "$EUID" -eq 0 ]]; then
+                apt-get update
+                apt-get install -y build-essential procps curl file git
+            elif command -v sudo >/dev/null 2>&1; then
+                sudo apt-get update
+                sudo apt-get install -y build-essential procps curl file git
+            else
+                echo "Install build-essential, procps, curl, file, and git as root, then re-run chezmoi apply." >&2
+                exit 1
+            fi
+            ;;
+        *)
+            echo "Install the Homebrew on Linux prerequisites for your distribution before continuing." >&2
+            echo "Required tools include a compiler toolchain, procps, curl, file, and git." >&2
+            exit 1
+            ;;
+    esac
 fi
 
 if ! command -v brew >/dev/null 2>&1; then
     echo "Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
 
-    if [[ -x /opt/homebrew/bin/brew ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    elif [[ -x /usr/local/bin/brew ]]; then
-        eval "$(/usr/local/bin/brew shellenv)"
-    fi
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+elif [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+else
+    echo "Homebrew was installed but its executable could not be found." >&2
+    exit 1
 fi
 
 echo "Installing terminal applications..."

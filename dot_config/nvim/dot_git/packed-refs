@@ -1,5 +1,0 @@
-# pack-refs with: peeled fully-peeled sorted 
-ec3f4489c29b95cc4a15f0f1ae90ae54a675289b refs/remotes/origin/feature/mini.icons
-4b065ad2f71935b8b053d26a65735f40bdc85969 refs/remotes/origin/lazy
-f0a2108ed51547793c758d9318bad94f242b22e5 refs/remotes/origin/master
-97ed8dfaf18f4a755bb60f021ef128ec6a578142 refs/remotes/origin/refactor/gitsigns
