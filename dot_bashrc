@@ -1,0 +1,17 @@
+# Use a widely available terminal definition when the remote host does not know
+# the terminal advertised by the SSH client (for example, Kitty).
+if [[ -n "${TERM:-}" ]] && ! infocmp "$TERM" >/dev/null 2>&1; then
+    export TERM=xterm-256color
+fi
+
+# Enterprise PAM policies can prevent chsh. Start Linuxbrew Zsh for interactive
+# terminal sessions so Bash remains a safe login-shell fallback.
+if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    _brew_zsh="$(/home/linuxbrew/.linuxbrew/bin/brew --prefix)/bin/zsh"
+    if [[ -t 1 && -x "$_brew_zsh" ]]; then
+        export SHELL="$_brew_zsh"
+        exec "$_brew_zsh"
+    fi
+    unset _brew_zsh
+fi
