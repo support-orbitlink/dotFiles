@@ -1,3 +1,13 @@
+# Use a widely available terminal definition when the remote host does not know
+# the terminal advertised by the SSH client (for example, Kitty).
+if [[ -n "${TERM:-}" ]] && ! infocmp "$TERM" >/dev/null 2>&1; then
+  export TERM=xterm-256color
+fi
+
+# Keep remote line editing and prompt redraws on a predictable UTF-8 locale.
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
 # Initialize Homebrew from its default Apple Silicon or Intel location.
 if [[ -x /opt/homebrew/bin/brew ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"

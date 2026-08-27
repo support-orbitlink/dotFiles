@@ -9,20 +9,20 @@ A [chezmoi](https://www.chezmoi.io/) source repository for reproducing this term
 - **Kitty** with Catppuccin Mocha and 0xProto Nerd Font on macOS only.
 - **Homebrew/Linuxbrew** packages required by the configuration.
 
-Chezmoi translates names such as `dot_zshrc` and `dot_config` into `~/.zshrc` and `~/.config`. Do not copy source files into `$HOME` under their repository names.
+Chezmoi translates names such as `dot_zshrc`, `dot_bashrc`, and `dot_config` into `~/.zshrc`, `~/.bashrc`, and `~/.config`. Do not copy source files into `$HOME` under their repository names.
 
 ## Requirements
 
 - An internet connection for Homebrew, packages, and Neovim plugins.
 - A regular, non-root user. Homebrew on Linux must not be installed as root.
 - **macOS:** install Xcode Command Line Tools with `xcode-select --install`.
-- **Debian/Ubuntu:** `curl`, `git`, and an account with `sudo`. On a minimal server, run `sudo apt-get update && sudo apt-get install -y curl git` first. The bootstrap installs the remaining Linuxbrew prerequisites.
+- **Debian/Ubuntu:** `curl`, `git`, and an account with `sudo`. On a minimal server, run `sudo apt-get update && sudo apt-get install -y curl git` first. The bootstrap installs `build-essential`, `gcc`, `g++`, and `make` with the remaining Linuxbrew prerequisites.
 - **Other Linux distributions:** install Homebrew's compiler/toolchain prerequisites and Homebrew manually first. The dotfiles work there, but prerequisite installation is only automated for Debian and Ubuntu.
 
 ## Install
 
 > [!WARNING]
-> Applying dotfiles can overwrite existing files. Back up `~/.zshrc`, `~/.config/nvim`, and, on macOS, `~/.config/kitty` first.
+> Applying dotfiles can overwrite existing files. Back up `~/.zshrc`, `~/.bashrc`, `~/.config/nvim`, and, on macOS, `~/.config/kitty` first.
 
 Replace `<repository-url>` with this repository's HTTPS or SSH URL:
 
@@ -49,7 +49,7 @@ grep -qxF "$ZSH_PATH" /etc/shells || echo "$ZSH_PATH" | sudo tee -a /etc/shells
 chsh -s "$ZSH_PATH"
 ```
 
-Log out and reconnect. Alternatively, run `zsh` manually without changing the login shell.
+Log out and reconnect. If an enterprise PAM policy (such as an SSH/JIT environment) prevents `chsh`, the managed `.bashrc` automatically initializes Linuxbrew and replaces an interactive Bash terminal with its Homebrew Zsh. Non-interactive Bash sessions are left unchanged.
 
 ### SSH and icons
 
